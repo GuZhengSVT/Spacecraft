@@ -118,6 +118,7 @@ let renderer, scene, camera, controls;
 let models = {};
 let current = null;
 let hotspots = [];
+let occlusionFrame = 0;
 let selectedPart = null;
 let fly = null;
 let labelsOn = true;
@@ -303,7 +304,7 @@ function buildHotspots() {
     el.setAttribute('aria-label', '查看' + p.title);
     el.addEventListener('click', () => focusPart(key));
     hotspotsEl.append(el);
-    return { key: key, el: el, point: new THREE.Vector3().fromArray(p.anchor) };
+    return { key: key, el: el, point: new THREE.Vector3().fromArray(p.anchor), occluded: false, checkedFrom: new THREE.Vector3(Infinity, Infinity, Infinity) };
   });
 }
 
@@ -370,18 +371,24 @@ function projectHotspots() {
   const v = new THREE.Vector3();
   const ray = new THREE.Raycaster();
   const dir = new THREE.Vector3();
-  for (const hs of hotspots) {
+  // Dense models spread occlusion rays across frames; a stationary camera can
+  // reuse the result. Screen projection still updates for every label each frame.
+  const dense = current.pts.length > 100000;
+  const checkIndex = occlusionFrame++ % hotspots.length;
+  for (const [index, hs] of hotspots.entries()) {
     v.copy(hs.point).project(camera);
     const x = (v.x * 0.5 + 0.5) * w;
     const y = (-v.y * 0.5 + 0.5) * h;
     let show = v.z > -1 && v.z < 1 && x > 26 && x < w - 26 && y > 96 && y < h - 96;
-    if (show) {
+    if (show && (!dense || index === checkIndex) && hs.checkedFrom.distanceToSquared(camera.position) > 1e-8) {
       dir.copy(hs.point).sub(camera.position);
       const d = dir.length();
       ray.set(camera.position, dir.normalize());
       const hit = ray.intersectObjects(current.meshes, false)[0];
-      if (hit && hit.distance < d - (active === 'voyager' ? 0.55 : 0.045)) show = false;
+      hs.occluded = !!hit && hit.distance < d - (active === 'voyager' ? 0.55 : 0.045);
+      hs.checkedFrom.copy(camera.position);
     }
+    if (hs.occluded) show = false;
     hs.el.style.visibility = show ? 'visible' : 'hidden';
     hs.el.style.transform = 'translate(' + (x - 14) + 'px, ' + (y - 14) + 'px)';
   }

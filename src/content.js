@@ -2,7 +2,7 @@
 // 数字取自 NASA、中国空间技术研究院、中国国家航天局等公开页面，
 // 逐项出处见每个航天器的 sources。
 
-export const craftOrder = ['voyager', 'sputnik', 'dongfanghong', 'cassini'];
+export const craftOrder = ['voyager', 'sputnik', 'dongfanghong', 'cassini', 'soyuz'];
 
 export const craft = {
   voyager: {
@@ -515,12 +515,112 @@ craft.cassini = {
   ],
 };
 
+craft.soyuz = {
+  id: 'soyuz', name: '联盟号', en: 'SOYUZ TMA',
+  tag: '2002 · TMA 系列 · 国际空间站的来回航程',
+  lede: '深色隔热毯裹住两个乘员舱，白色散热器围住推进舱。三段式飞船把生活、返回与推进分开，只让中间的一舱回到地面。',
+  model: 'models/soyuz.glb',
+  download: { file: 'Soyuz-TMA.glb', size: '16.90 MB' },
+  view: { min: 1.2, max: 40, exposure: 1, target: [0, 0, 0], position: [7, 4, 15], up: [0, 1, 0], fit: 1 },
+  heroFacts: [
+    { v: '2002', u: '年', l: 'TMA 首飞' },
+    { v: '3', u: '人', l: '乘员容量' },
+    { v: '3', u: '舱', l: '各负其责' },
+  ],
+  modelInfo: {
+    tri: '373,168', vert: '327,429', mesh: '19', mat: '18', tex: '4',
+    note: '本站自行制作的 TMA 外观重建：独立建出隔热毯褶皱、包边与缝线、舷窗座圈、探杆式对接机构、Kurs 天线、散热管路及分片电池翼，内嵌原创颜色、法线、粗糙度和电池片贴图。结构参考 NASA / ESA 资料，视觉细节参考 Chris Kuhn 的作品预览；小型附件与布料形态为近似复原。',
+    method: '自主建模 · PBR',
+  },
+  parts: {
+    orbital: {
+      no: '01', title: '轨道舱', en: 'ORBITAL MODULE',
+      text: '前部近球形舱段提供在轨活动空间，前端装着对接机构和交会天线。深色隔热毯之外，舷窗、出入舱口、线束与支架仍各自露出；通向空间站的通道也经过这里。',
+      value: '6.5', unit: '立方米 · 轨道舱容积',
+      anchor: [.13, 2.18, 1.21], target: [0, 2.1, 0], offset: [2.5, 1.3, 4],
+      source: 'https://www.nasa.gov/wp-content/uploads/2024/04/exp11-presskit.pdf',
+    },
+    descent: {
+      no: '02', title: '返回舱', en: 'DESCENT MODULE',
+      text: '中间的钟形舱段容纳发射和返回时的乘组，是三个舱段中唯一着陆的部分。隔热毯之下是承受再入的舱体，舱内还装有降落伞、生命保障设备与定制座椅衬垫。',
+      value: '3', unit: '人 · 可搭载乘员',
+      anchor: [.2, .03, 1.08], target: [0, .05, 0], offset: [2.8, 1.1, 4.2],
+      source: 'https://www.nasa.gov/wp-content/uploads/2024/04/exp11-presskit.pdf',
+    },
+    service: {
+      no: '03', title: '仪器与推进舱', en: 'INSTRUMENT / PROPULSION MODULE',
+      text: '后部装着航电、推进剂与发动机，承担在轨机动和离轨制动。白色外壁是热控散热器；太阳能翼接在两侧，主发动机喷管和姿态控制喷口位于后端。',
+      value: '8', unit: '平方米 · NASA 资料中的散热面积',
+      anchor: [.7, -2.2, 1.2], target: [0, -2.25, 0], offset: [3, -2.2, 4.5],
+      source: 'https://www.nasa.gov/wp-content/uploads/2024/04/exp11-presskit.pdf',
+    },
+    solar: {
+      no: '04', title: '太阳能电池翼', en: 'SOLAR ARRAYS',
+      text: '展开的两翼与蓄电池共同供电。模型把每一翼分为三段，分别制作硅电池片、银色汇流线、铰链与背面支撑；绕到背后，可以看到与正面不同的基板和加强杆。',
+      value: '10.6', unit: '米 · 系列展开翼展参考值',
+      anchor: [3.55, -1.89, .04], target: [3.55, -1.89, 0], offset: [.3, 2.3, 5],
+      source: 'https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/The_Russian_Soyuz_spacecraft',
+    },
+    docking: {
+      no: '05', title: '探杆式对接机构', en: 'PROBE-AND-DROGUE DOCKING UNIT',
+      text: '前端探杆先帮助两艘航天器建立初始连接，再收拢到对接环完成连接。这里重建了探杆、缓冲套、环形接口、锁块和紧固件；旁边的 Kurs 天线用于自动交会。',
+      value: 'Kurs', unit: '交会测量与自动对接',
+      anchor: [0, 3.70, 0], target: [0, 3.15, 0], offset: [1.9, 2.1, 2.7],
+      source: 'https://www.nasa.gov/wp-content/uploads/2024/04/exp11-presskit.pdf',
+    },
+  },
+  specs: [
+    { v: '2002', u: '年', l: 'TMA 系列首次飞行', d: '10 月 30 日，联盟 TMA-1 发射' },
+    { v: '约 7', u: '吨', l: '飞船质量参考', d: 'ESA 的联盟系列概览，具体任务质量有差异' },
+    { v: '约 7.2', u: '米', l: '飞船长度参考', d: '系列外形尺度，不作为模型测量精度' },
+    { v: '10.6', u: '米', l: '太阳能翼展开参考', d: '采用 ESA 概览给出的系列尺寸' },
+    { v: '3', u: '人', l: '乘员容量', d: 'TMA 改善了不同身材乘员的适应范围' },
+  ],
+  fact: '联盟飞船抵达空间站后，还要留下来充当返回工具。2002 年首飞的 TMA-1 把一组乘员送上去，约半年后又把另一组乘员带回地球。',
+  readings: [
+    {
+      no: '01', title: '三个舱，只回来一个',
+      body: '三段式结构把在轨空间与返回的重量分开：轨道舱用于在轨活动，返回舱容纳乘组，仪器与推进舱负责飞船运行和机动。完成离轨制动后，两端舱段分离，只有中间的返回舱进入着陆流程。',
+      facts: ['轨道舱在前', '返回舱居中', '仪器与推进舱在后', '只有返回舱着陆'],
+    },
+    {
+      no: '02', title: '隔热毯并不光滑',
+      body: '实物外层是贴合舱体包扎的隔热材料，接缝、包边和固定点会改变表面起伏。模型用几何表达较大的折皱与缝线，再用法线和粗糙度贴图补充织物细纹，让它与周围的玻璃和金属有不同的反光。',
+      facts: ['几何褶皱保留轮廓起伏', '包边和针脚独立建模', '法线贴图补充细纹', '材质随部件功能区分'],
+    },
+    {
+      no: '03', title: 'TMA 的 A，关乎坐进飞船的人',
+      body: 'TMA 在 TM 的基础上改进座舱与着陆系统，扩大了可搭载乘员的身材范围。它也引入改进的显示设备。外形依然能一眼认出联盟家族，但不能把它与 1975 年采用 APAS-75 的联盟 19 号混成同一个型号。',
+      facts: ['2002 年首次飞行', '为国际空间站运送与接回乘组', '扩大乘员身材适应范围', '页面模型采用 TMA 家族外观'],
+    },
+    {
+      no: '04', title: '停靠在轨道上的救生艇',
+      body: '一次飞行不总由同一组人完成。TMA-1 的首发乘员乘较早抵达的 TM-34 返回，新飞船留在空间站作为返回工具，最后把远征六号乘组带回地球。飞船轮换也让驻站乘组始终有可用的返航座舱。',
+      facts: ['TMA-1 于 2002-10-30 发射', '首发乘组改乘 TM-34 返回', 'TMA-1 留在空间站约半年', '2003-05-04 携远征六号乘组着陆'],
+    },
+  ],
+  timeline: { tabs: [{ name: 'TMA-1 · 首次飞行', items: [
+    { d: '2002.10.30', t: 'TMA 首飞', x: '三位乘员从拜科努尔出发，开始这一改进型号的首次任务。' },
+    { d: '2002.11', t: '轮换返回飞船', x: 'TMA-1 抵达后留在空间站，首发乘组乘 TM-34 回到地球。' },
+    { d: '2002—2003', t: '作为驻站返回工具', x: '新飞船留轨约半年，为空间站乘组提供返航座舱。' },
+    { d: '2003.05.04', t: '首次返回与着陆', x: 'TMA-1 携远征六号乘组以弹道模式返回，乘员安全着陆。' },
+  ] }] },
+  sources: [
+    { l: 'TMA 舱段、热控与系统改进', n: 'NASA · Expedition 11 Press Kit · pp. 20–23', url: 'https://www.nasa.gov/wp-content/uploads/2024/04/exp11-presskit.pdf' },
+    { l: '系列外形尺度与型号沿革', n: 'ESA · The Russian Soyuz spacecraft', url: 'https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/The_Russian_Soyuz_spacecraft' },
+    { l: 'TMA-1 乘组、首飞与返回', n: 'ESA · Odissea', url: 'https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/Odissea' },
+    { l: 'TMA 首次返回与后续改进', n: 'ESA · New Soyuz TMA spacecraft cleared for next mission', url: 'https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/Cervantes_Mission/New_Soyuz_TMA_spacecraft_cleared_for_next_mission_with_ESA_astronaut' },
+    { l: '建模视觉参考', n: 'Chris Kuhn · Soyuz TMA · 仅参考作品预览', url: 'https://chriskuhn.artstation.com/projects/3Ko5D' },
+  ],
+};
+
 // 航天器的横向对照，按发射质量排序
 export const compare = [
   { id: 'sputnik', name: '斯普特尼克 1 号', year: '1957', mass: 83.6, massText: '83.6 kg', size: '球体 58 cm' },
   { id: 'dongfanghong', name: '东方红一号', year: '1970', mass: 173, massText: '173 kg', size: '多面体 1 m' },
   { id: 'voyager', name: '旅行者号', year: '1977', mass: 815, massText: '815 kg', size: '天线 3.7 m' },
   { id: 'cassini', name: '卡西尼号', year: '1997', mass: 5712, massText: '5,712 kg', size: '天线 4 m' },
+  { id: 'soyuz', name: '联盟 TMA', year: '2002', mass: 7000, massText: '约 7,000 kg', size: '总长约 7.2 m' },
 ];
 
 // B 站：炙弹冰的航天史填词视频，数据截至 2026-10-24

@@ -90,3 +90,35 @@ https://science.nasa.gov/mission/voyager/voyager-golden-record-overview/
 - ESA 任务概览：https://www.esa.int/Science_Exploration/Space_Science/Cassini-Huygens_overview （发射、引力助推与土星入轨；入轨日期采用 UTC 的 2004-07-01。）
 - ESA 惠更斯着陆：https://www.esa.int/Science_Exploration/Space_Science/Cassini-Huygens/Europe_reaches_new_frontier_Huygens_lands_on_Titan （2005-01-14。）
 - NASA Grand Finale：https://science.nasa.gov/mission/cassini/grand-finale/overview/ （22 次穿越、2017-09-15 主动进入大气与行星保护目的。）
+
+
+## 联盟号：本站原创 TMA 外观重建（2026-10-25）
+
+用户选择以 Chris Kuhn 的高细节作品为视觉参考，自行建模。已用原创模型替换早先的 NASA ASTP 联盟 19 号资产；页面也改为 TMA 系列，首飞年表采用 TMA-1，不再混用 1975 年的 APAS-75、两人乘组和 6,680 千克参数。
+
+### 结构与史料
+
+- NASA《Expedition 11 Press Kit》，印刷页 20–23（PDF 页 21–24）：https://www.nasa.gov/wp-content/uploads/2024/04/exp11-presskit.pdf 。TMA 三舱布局、6.5 立方米轨道舱、返回舱、外置交会天线、仪器/推进舱、8 平方米散热器和电池翼；乘员身材适应范围与着陆系统改进。
+- ESA 系列概览：https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/The_Russian_Soyuz_spacecraft 。质量约 7 吨、总长约 7.2 米、直径约 2.7 米、展开翼展 10.6 米和最多三位乘员。该页同时谈及多代联盟，页面明确把这些数字标成系列尺度参考，不宣称是某一任务的精确发射质量。
+- ESA Odissea：https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/Odissea 。TMA-1 于 2002-10-30 首飞，三位首发乘员改乘 TM-34 返回；TMA-1 留站约半年，于 2003-05-04 携远征六号乘组着陆。
+- ESA 2003 年调查与改进说明：https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/Cervantes_Mission/New_Soyuz_TMA_spacecraft_cleared_for_next_mission_with_ESA_astronaut 。首次返回采用弹道模式；新版 TMA 的改进不能与旧 TM 或 ASTP 19 号混用。
+- 视觉参考：Chris Kuhn 的 Soyuz TMA 作品预览 https://chriskuhn.artstation.com/projects/3Ko5D 。仅参考实物表现和细节层次，没有取得、转换或复用该作品的几何、纹理或程序材质。
+
+### 原创模型
+
+- 几何源码：`src/soyuz-model.js`。构建：`npm run model:soyuz`，输出 `public/models/soyuz.glb`；不访问网络，不依赖 Blender。
+- 飞船竖直轴为 Y，单位为米；白色推进舱最大直径约 2.7 米，太阳能翼名义跨度 10.6 米，突出铰链使最终包围盒稍宽。它是家族外形复原，不是指定序列号的工程数字样机。
+- 轨道舱、返回舱和仪器舱分别生成起伏蒙皮；隔热毯包边、针脚与束线另建几何。褶皱形态、针脚密度、紧固件数量和部分小型设备位置是用于观察的近似表达。
+- 舷窗包含完整座圈、带真实内孔的金属边框、密封圈和独立玻璃面；玻璃与布料保持空间间隔。俄罗斯三色标识使用曲面条带顶点色，避免重复 UV、贴图底色块和舱段环带的标识串用。
+- TMA 前端采用探杆式对接外形，重建中空环体、暗色凹槽、探杆套筒、锁块和紧固件；不沿用 ASTP 的 APAS-75。Kurs 碟状天线配独立支架、馈源与缆线。
+- 推进舱含纵向散热通道、姿态喷口、管路和有内壁的主发动机喷管。两翼共六段结构面板，792 片独立电池，另建汇流线、铰链与背面支撑。
+- 四张原创 PNG 贴图均由脚本生成并内嵌：1024² 隔热毯颜色、1024² 法线、512² 粗糙度/金属度、256² 电池片接触栅线。织物、玻璃、铝、涂层散热器与硅片分别使用不同的 PBR 参数。
+- 同材质小零件合并为网格；总计 373,168 三角面、327,429 顶点、19 个渲染网格、18 种材质、4 张内嵌图片，16,897,368 字节。没有外部资产 URI。
+- 当前 GLB SHA-256：`b0a2ed86ef360679d19379d05b7481ddde1169440add14eebc79cec741466888`。
+- GLB 内记录本项目原创署名、官方资料和视觉参考，并明确标注为近似教学外观。页面下载名为 `Soyuz-TMA.glb`。
+
+### 旧资产取舍
+
+此前从 NASA / Michael D. Carbajal 的 Apollo Soyuz 合体资产中提取的联盟 19 号仅有 16,642 三角面；近景确认存在国旗材质串用、UV 重复和舷窗边框穿入舱壳的问题，全套材质也缺少细节法线和粗糙度。该版本已被替换，不再作为现行模型或尺寸依据。
+
+曾筛选 Chris Kuhn 的商业模型、BOOTH Soyuz-TM、Sketchfab 合体模型与 NASA 早期 ISS 的 LWO 资产。用户随后选择自行建模，因此未购买商业资产，也未将候选源文件加入仓库。
