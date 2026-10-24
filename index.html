@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#08090b" />
+  <meta name="description" content="旅行者号、斯普特尼克 1 号、东方红一号与卡西尼号的三维档案：可旋转缩放的模型、逐项核对的工程数据、任务年表，以及写给它们的歌。" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <title>深空档案 · 四件航天器</title>
+</head>
+<body>
+  <a class="skip" href="#stage">跳到模型</a>
+
+  <header class="top">
+    <a class="brand" href="#top" aria-label="深空档案首页">
+      <b>DEEP FIELD</b><span>深空档案</span>
+    </a>
+    <nav aria-label="章节">
+      <a href="#deck" data-nav="deck">展台</a>
+      <a href="#data" data-nav="data">数据</a>
+      <a href="#notes" data-nav="notes">读物</a>
+      <a href="#chrono" data-nav="chrono">年表</a>
+      <a href="#sound" data-nav="sound">声音</a>
+      <a href="#archive" data-nav="archive">资料</a>
+    </nav>
+    <div class="switch" role="group" aria-label="选择航天器" id="switch"></div>
+  </header>
+
+  <main id="top">
+    <!-- 展台：左侧粘性三维视口，右侧滚动的导览 -->
+    <section class="deck" id="deck">
+      <div class="stage">
+        <div class="stage-inner" id="stage">
+          <div class="hud" aria-live="polite">
+            <p class="now" id="hud-now">01 / 飞船</p>
+            <p class="what" id="hud-what">高增益天线<small>HIGH-GAIN ANTENNA</small></p>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="scene" tabindex="0" aria-label="三维模型：拖动旋转，滚轮缩放，方向键旋转，加减键缩放，Home 复位"></canvas>
+            <div class="hotspots" id="hotspots"></div>
+          </div>
+          <div class="tools">
+            <button id="tool-rotate" aria-pressed="false" title="自动旋转"><i>⟳</i>旋转</button>
+            <button id="tool-labels" aria-pressed="true" title="显示部件标记"><i>⊙</i>标记</button>
+            <button id="tool-wire" aria-pressed="false" title="线框"><i>◇</i>线框</button>
+            <button id="tool-reset" title="复位视角"><i>⌖</i>复位</button>
+            <button id="tool-full" title="全屏"><i>⛶</i>全屏</button>
+          </div>
+          <p class="stage-note">拖动旋转 · 滚轮缩放<br /><span id="stage-model">VOYAGER · NASA / VTAD</span></p>
+          <div class="loading" id="loading" role="status">
+            <div class="ring"></div>
+            <p>正在展开模型</p>
+            <b id="loading-pct">0%</b>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow">
+        <article class="panel hero">
+          <p class="idx"><span id="craft-index">01 / 04</span></p>
+          <h1 id="craft-name">旅行者号<span class="en" id="craft-en">VOYAGER</span></h1>
+          <p class="kicker" id="craft-tag">1977 · 双探测器 · 星际空间</p>
+          <p class="lede" id="craft-lede"></p>
+          <div class="facts" id="hero-facts"></div>
+          <p class="scrollcue"><span class="bar"></span>向下滚动，逐件查看</p>
+        </article>
+        <div id="parts-flow"></div>
+      </div>
+    </section>
+
+    <!-- 数据 -->
+    <section class="sec" id="data">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>工程数据</h2>
+          <p class="label">Specifications</p>
+        </div>
+        <div class="specs" id="specs"></div>
+        <div class="fact">
+          <p class="label">值得记住</p>
+          <p id="fact"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 读物 -->
+    <section class="sec" id="notes">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>读这本机器</h2>
+          <p class="label">Field Notes</p>
+        </div>
+        <p class="sec-lead" style="margin-bottom:44px">把参数放回它诞生的年代：为什么这样设计，这样设计换来了什么。</p>
+        <div class="reads" id="reads"></div>
+      </div>
+    </section>
+
+    <!-- 年表 -->
+    <section class="sec" id="chrono">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>任务年表</h2>
+          <p class="label">Chronology</p>
+        </div>
+        <div class="tl-tabs" role="tablist" aria-label="选择任务" id="tl-tabs"></div>
+        <ol class="tl" id="timeline"></ol>
+      </div>
+    </section>
+
+    <!-- 对照 -->
+    <section class="sec" id="compare">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>四件东西，四个年代</h2>
+          <p class="label">Scale</p>
+        </div>
+        <div class="cmp" id="compare-list"></div>
+      </div>
+    </section>
+
+    <!-- 模型档案 -->
+    <section class="sec" id="model">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>模型档案</h2>
+          <p class="label">Geometry</p>
+        </div>
+        <div class="model-grid">
+          <div class="model-facts" id="model-facts"></div>
+          <div class="model-note">
+            <p id="model-note"></p>
+            <p>文件为 glTF 2.0 二进制格式，可直接用 Blender 的 <strong>File → Import → glTF 2.0</strong> 打开继续编辑。</p>
+            <a class="dl" id="model-dl" download href="#"><i>↓</i>下载 GLB<span id="model-size"></span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 声音 -->
+    <section class="sec" id="sound">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>写给它们的歌</h2>
+          <p class="label">Bilibili · NetEase</p>
+        </div>
+        <p class="sec-lead" style="margin-bottom:52px">
+          B 站 UP 主炙弹冰用现成的曲子重填中文词，把一件件航天器的命运写成歌。这里收录四支航天史填词视频，
+          以及他在网易云音乐上署名的两首填词作品。
+        </p>
+        <div class="sound">
+          <div>
+            <div class="subhead">
+              <h3>航天史填词</h3>
+              <p class="label">Bilibili · 炙弹冰</p>
+            </div>
+            <div class="screen" id="video-stage"></div>
+            <div class="vlist" id="video-list"></div>
+          </div>
+          <aside class="music-side">
+            <div>
+              <div class="subhead">
+                <h3>网易云音乐</h3>
+                <p class="label">NetEase</p>
+              </div>
+              <div class="nowplay">
+                <div class="disc">
+                  <div class="vinyl" id="vinyl"></div>
+                  <div class="meta">
+                    <b id="song-title">百分之一的长旅</b>
+                    <span id="song-meta">炙弹冰 / 星辰不唏嘘 / 洛天依</span>
+                  </div>
+                </div>
+                <div class="player">
+                  <div class="bar" id="seek" role="slider" aria-label="播放进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+                    <span class="fill" id="seek-fill"></span>
+                    <span class="dot" id="seek-dot"></span>
+                  </div>
+                  <div class="times"><span id="t-now">00:00</span><span id="t-all">00:00</span></div>
+                  <div class="controls">
+                    <button class="pp" id="play" aria-label="播放"></button>
+                    <a class="link" id="song-link" href="https://music.163.com/" target="_blank" rel="noreferrer">在网易云打开 ↗</a>
+                  </div>
+                  <div class="player-official" id="official" hidden>
+                    <iframe id="official-frame" title="网易云音乐播放器" width="100%" height="66" frameborder="0" scrolling="no" src="about:blank"></iframe>
+                    <p class="fallback-note">网易云官方播放器</p>
+                  </div>
+                </div>
+                <div class="songs" id="song-list"></div>
+                <p class="credit">
+                  词作版权归原作者与 UP 主所有 · B 站主页
+                  <a href="https://space.bilibili.com/69855702/" target="_blank" rel="noreferrer">@炙弹冰</a>
+                </p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 资料 -->
+    <section class="sec" id="archive">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>资料来源</h2>
+          <p class="label">Sources</p>
+        </div>
+        <div class="sources" id="sources"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>
+      <b>DEEP FIELD</b><br />
+      四件航天器 · 一份三维档案<br />
+      模型：NASA / VTAD，及本站参数化重建
+    </div>
+    <div style="text-align:right">
+      视频与音乐版权归 UP 主与原作者<br />
+      <a href="https://space.bilibili.com/69855702/" target="_blank" rel="noreferrer">B 站 @炙弹冰</a> ·
+      <a href="https://music.163.com/" target="_blank" rel="noreferrer">网易云音乐</a>
+    </div>
+  </footer>
+
+  <noscript><p class="noscript">这个页面用 WebGL 展示三维模型，请开启 JavaScript 后重新载入。</p></noscript>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
