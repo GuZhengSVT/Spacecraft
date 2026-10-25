@@ -122,3 +122,32 @@ https://science.nasa.gov/mission/voyager/voyager-golden-record-overview/
 此前从 NASA / Michael D. Carbajal 的 Apollo Soyuz 合体资产中提取的联盟 19 号仅有 16,642 三角面；近景确认存在国旗材质串用、UV 重复和舷窗边框穿入舱壳的问题，全套材质也缺少细节法线和粗糙度。该版本已被替换，不再作为现行模型或尺寸依据。
 
 曾筛选 Chris Kuhn 的商业模型、BOOTH Soyuz-TM、Sketchfab 合体模型与 NASA 早期 ISS 的 LWO 资产。用户随后选择自行建模，因此未购买商业资产，也未将候选源文件加入仓库。
+
+
+## 阿波罗 CSM 与鹰号登月舱（2026-10-25）
+
+- 模型来自 Project Apollo – NASSP contributors，固定版本 `914090467d085946a95d911cbaca0804047d4665`：https://github.com/orbiternassp/NASSP/tree/914090467d085946a95d911cbaca0804047d4665 。上游 `COPYING.txt` 与 `NASSP-LICENSE.txt` 指定 GPL v2；完整许可和可编辑源文件保留在 `public/models/sources/apollo-nassp.zip`，单独许可在 `public/models/LICENSE-NASSP.txt`。
+- 源文件包含 18 个 MSH 网格、36 张 PNG、固定版本、原文件 SHA-256 与转换说明。DDS 无损解码为 PNG；法线绿色通道作 glTF 方向适配，CM 反射图另转为近似金属度／粗糙度图。
+- `scripts/build-apollo.mjs` 离线解析 MSH，保留顶点、UV 与面索引，转换左右手坐标并按上游 `saturnmesh.cpp`、`lemmesh.cpp` 的舱段偏移装配。CSM 转为 Y 轴向上；登月舱保留 Y 轴向上并翻转 Z。下降级中 39 个只有位置与 UV 的顶点按原三角索引补算法线，其余法线保留。
+- CSM 使用 CM-Nohatch、关闭舱门、对接环与收拢探杆，以及 SM-core、六块外壁、RCS、SPS 和 HGA；不包含发射逃逸塔、模拟器座舱或服务舱科学仪器舱内部。CSM 共 45,832 三角面、43,903 顶点、74 个渲染网格与材质、21 张内嵌 PNG。
+- LM 使用上升／下降两级外观，移除人物、AES 扩展硬件、RTG 燃料罐和后期羽流挡板，着陆架与触月探针保持展开。LM 共 33,582 三角面、37,032 顶点、29 个渲染网格与材质、13 张内嵌 PNG。它是静态早期任务外观，不表示所有设备在某个精确时刻的姿态。
+- CSM 参数：https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059A 。发射质量 28,801 kg（含推进剂、消耗品），长度 11.0 m，最大直径 3.9 m，三人乘组。
+- LM 参数：https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C 。总质量 15,103 kg，含两级和推进剂。系列高度与脚垫对角跨度参考 NASA NTRS 的 7.04 m、9.45 m：https://ntrs.nasa.gov/api/citations/20080030104/downloads/20080030104.pdf 。模型含探针，因此包围盒高度不等于名义舱体高度。
+- 任务日期（UTC）：https://www.nasa.gov/history/apollo-11-mission-overview/ 。着陆为 7 月 20 日，首次踏上月面为 7 月 21 日；CSM 与 LM 的任务年表分别展示母船与登月飞船的分工。
+- 结构图：https://www.nasa.gov/history/diagrams/apollo.html 。
+- `apollo-csm.glb`：3,085,276 字节；SHA-256 `9fed45c49da657db97f8cf8d3cda1a25c013c3b3a6623f9c5727fe98752e0749`。
+- `apollo-lm.glb`：10,141,252 字节；SHA-256 `51859b21d33f3c9f0407eec3f6d9d54aa0eba832132c9575960caab89766b980`。
+
+## 国际空间站 IGOAL 官方高细节模型（2026-10-25）
+
+- 来源：NASA/JSC/Integrated Graphics, Operations, and Analysis Laboratory，资源页 https://science.nasa.gov/3d-resources/international-space-station-iss-d-igoal/ 。选择可直接用于 Web 的 D / IGOAL 版本；NASA 的 C / High Res 候选为 2011 年 Lightwave 分件版本，本次未采用。
+- 原始下载：https://assets.science.nasa.gov/content/dam/science/cds/3d/resources/model/international-space-station-(iss)-(d)-(igoal)/International%20Space%20Station%20(ISS)%20(D)%20(IGOAL).glb 。仓库保存为 `public/models/iss.glb`，原始字节不变；没有减面或贴图降采样。
+- 文件大小 64,846,620 字节，SHA-256 `3b03742fb55f2a495c4a72aaa2cb175aaeff5ee38f4f42b95f92083e30a464ef`。原始生成器为 Khronos glTF Blender I/O v5.0.21，glTF 2.0，必须使用 `KHR_draco_mesh_compression` 解码。
+- 2,975,912 三角面、6,415,155 accessor 顶点；原文件一个 mesh、45 个 primitives，Three.js 解码为 45 个渲染网格。44 个显式材质，另一个 primitive 使用默认材质。114 张内嵌图片；34 个材质带法线图，38 个带金属度／粗糙度图。所有 buffer 与 image 均无外部 URI。
+- 模型含 iROSA、Nauka、Prichal、实验舱与多种外部载荷，保持发布时的静态装配，不用它推定实时在轨构型。GLB 米制坐标外包围范围约为 X ±36.711、Y -22.116 至 8.510、Z ±54.147；只在展示场景缩放 0.1 倍，下载保留原始米制尺度。
+- 使用范围依据 NASA 的媒体与三维资产指引：https://www.nasa.gov/nasa-brand-center/images-and-media/ 。页面与 README 均保留 NASA / JSC / IGOAL 署名。
+- 整站质量 419,725 kg、翼端跨度 109 m、桁架参考长 94 m、加压体积 1,005 m³，来源 https://www.nasa.gov/international-space-station/space-station-facts-and-figures/ 。这些是整站参考口径，质量不同于其他飞船的单次发射质量，且会随构型与来访飞船变化。
+- 部件、热控及实验舱：https://www.nasa.gov/international-space-station/international-space-station-assembly-elements/ 。穹顶舱七扇窗与机器人工作站：https://www.nasa.gov/international-space-station/cupola/ 。加拿大臂 2 的 17 m 长度：https://www.csa-asc.gc.ca/eng/iss/canadarm2/canadarm-canadarm2-canadarm3-comparative-table.asp 。
+- 初始组装日期参考 https://www.nasa.gov/international-space-station/unity-module/ ：1998-11-20 曙光号发射、1998-12-06 团结号与曙光号连接。首次长期驻留日期 2000-11-02：https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/International_Space_Station/Happy_birthday_Space_Station 。后续实验舱、机械臂、穹顶舱时间来自 NASA Assembly Elements。
+- 本地 Draco WASM 与 wrapper 从现有 Three.js 依赖的 `examples/jsm/libs/draco/gltf/` 复制，解码不使用 CDN。完整 Apache-2.0 许可与作者列表保存于 `public/draco/`。
+- 透明材质适配：上游仅 `ELC_Base`、`Truss`、`IROSA` 三种材质设置为 BLEND。对应颜色图均为 1024²，Alpha=0 / Alpha=255 像素分别约 26.78% / 71.45%、10.12% / 87.67%、18.93% / 79.12%，中间值仅约 1.77%–2.21%，用途主要是镂空与边缘。展台改为 alphaTest=0.5、transparent=false、depthWrite=true，并用 alphaToCoverage 平滑裁切边缘，修正大型合并网格的半透明排序错误。原始 GLB 下载文件不改动。

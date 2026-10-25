@@ -2,6 +2,7 @@ import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { craft, craftOrder, compare, videos, songs } from './content.js';
 
@@ -139,7 +140,8 @@ function makeRenderer() {
   controls = new OrbitControls(camera, canvas);
   controls.enableDamping = true;
   controls.dampingFactor = 0.07;
-  controls.enablePan = false;
+  controls.enablePan = true;
+  controls.panSpeed = 0.7;
   controls.rotateSpeed = 0.55;
   controls.zoomSpeed = 0.7;
   controls.autoRotateSpeed = 0.3;
@@ -183,7 +185,7 @@ function makeRenderer() {
   canvas.addEventListener('wheel', stop, { passive: true });
 }
 
-function prepare(root, isVoyager) {
+function prepare(root, id, boundsOnly = false) {
   const meshes = [], defaults = new Map(), pts = [];
   root.traverse((o) => {
     if (!o.isMesh) return;
@@ -192,9 +194,17 @@ function prepare(root, isVoyager) {
     for (const mat of (Array.isArray(o.material) ? o.material : [o.material])) {
       mat.side = THREE.DoubleSide;
       if (mat.map) mat.map.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-      if (isVoyager) {
+      if (id === 'voyager') {
         mat.metalness = mat.name === 'brass' ? 0.8 : 0.12;
         mat.roughness = mat.name === 'brass' ? 0.42 : 0.64;
+      }
+      // These ISS atlases use alpha for cutouts, not translucent surfaces.
+      // Blending the large combined meshes produces incorrect depth ordering.
+      if (id === 'iss' && ['ELC_Base', 'Truss', 'IROSA'].includes(mat.name)) {
+        mat.transparent = false;
+        mat.alphaTest = .5;
+        mat.alphaToCoverage = true;
+        mat.depthWrite = true;
       }
       defaults.set(mat, { map: mat.map, color: mat.color.clone(), metalness: mat.metalness, roughness: mat.roughness });
     }
@@ -202,6 +212,16 @@ function prepare(root, isVoyager) {
   root.updateMatrixWorld(true);
   const v = new THREE.Vector3();
   for (const mesh of meshes) {
+    // The ISS has millions of vertices. Bounds keep framing conservative without
+    // allocating a second object for every decoded vertex.
+    if (boundsOnly) {
+      mesh.geometry.computeBoundingBox();
+      const { min, max } = mesh.geometry.boundingBox;
+      for (const x of [min.x, max.x]) for (const y of [min.y, max.y]) for (const z of [min.z, max.z]) {
+        pts.push(new THREE.Vector3(x, y, z).applyMatrix4(mesh.matrixWorld));
+      }
+      continue;
+    }
     const p = mesh.geometry.attributes.position;
     for (let i = 0; i < p.count; i++) pts.push(v.fromBufferAttribute(p, i).applyMatrix4(mesh.matrixWorld).clone());
   }
@@ -211,17 +231,20 @@ function prepare(root, isVoyager) {
 }
 
 const loads = new Map();
+const dracoLoader = new DRACOLoader().setDecoderPath(ASSET + 'draco/').setWorkerLimit(2);
 function loadModel(id) {
   if (models[id]) return Promise.resolve(models[id]);
   if (loads.has(id)) return loads.get(id);
   const c = craft[id];
   const job = new GLTFLoader()
+    .setDRACOLoader(dracoLoader)
     .loadAsync(ASSET + c.model, (ev) => {
       if (ev.total) pctEl.textContent = Math.round(ev.loaded / ev.total * 100) + '%';
       else pctEl.textContent = (ev.loaded / 1e6).toFixed(1) + ' MB';
     })
     .then((gltf) => {
-      models[id] = prepare(gltf.scene, id === 'voyager');
+      gltf.scene.scale.multiplyScalar(c.view.scale || 1);
+      models[id] = prepare(gltf.scene, id, c.view.boundsOnly);
       loads.delete(id);
       return models[id];
     })
@@ -266,7 +289,15 @@ function frameAll(m) {
   return { target: target, pos: pos };
 }
 
+function clearControlMotion() {
+  const damping = controls.enableDamping;
+  controls.enableDamping = false;
+  controls.update();
+  controls.enableDamping = damping;
+}
+
 function applyModel(id, opt) {
+  clearControlMotion();
   const immediate = opt && opt.immediate;
   const c = craft[id];
   for (const k of Object.keys(models)) models[k].root.visible = k === id;
@@ -277,6 +308,7 @@ function applyModel(id, opt) {
   camera.up.fromArray(c.view.up).normalize();
   applyWire(false);
   const f = frameAll(current);
+  controls.cursor.copy(f.target);
   controls.target.copy(f.target);
   if (immediate || reduced) {
     camera.position.copy(f.pos);
@@ -321,9 +353,11 @@ function updateHud(key) {
 }
 
 function focusPart(key) {
+  clearControlMotion();
   const p = craft[active].parts[key];
   selectedPart = key;
   const target = new THREE.Vector3().fromArray(p.target);
+  controls.cursor.copy(target);
   const pos = target.clone().add(new THREE.Vector3().fromArray(p.offset));
   if (reduced) { camera.position.copy(pos); controls.target.copy(target); controls.update(); }
   else fly = { t0: performance.now(), dur: 1050, fromPos: camera.position.clone(), toPos: pos, fromT: controls.target.clone(), toT: target };
@@ -333,12 +367,14 @@ function focusPart(key) {
 }
 
 function resetView() {
+  clearControlMotion();
   selectedPart = null;
   cardLockUntil = performance.now() + 1200;
   updateHud(null);
   hotspots.forEach((h) => h.el.classList.remove('on'));
   $$('.pcard').forEach((p) => p.classList.remove('on'));
   const f = frameAll(current);
+  controls.cursor.copy(f.target);
   if (reduced) { camera.position.copy(f.pos); controls.target.copy(f.target); controls.update(); }
   else fly = { t0: performance.now(), dur: 950, fromPos: camera.position.clone(), toPos: f.pos, fromT: controls.target.clone(), toT: f.target };
 }
@@ -380,7 +416,7 @@ function projectHotspots() {
     const x = (v.x * 0.5 + 0.5) * w;
     const y = (-v.y * 0.5 + 0.5) * h;
     let show = v.z > -1 && v.z < 1 && x > 26 && x < w - 26 && y > 96 && y < h - 96;
-    if (show && (!dense || index === checkIndex) && hs.checkedFrom.distanceToSquared(camera.position) > 1e-8) {
+    if (show && craft[active].view.occlusion !== false && (!dense || index === checkIndex) && hs.checkedFrom.distanceToSquared(camera.position) > 1e-8) {
       dir.copy(hs.point).sub(camera.position);
       const d = dir.length();
       ray.set(camera.position, dir.normalize());
@@ -404,8 +440,14 @@ function tick(time) {
     const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
     camera.position.lerpVectors(fly.fromPos, fly.toPos, e);
     controls.target.lerpVectors(fly.fromT, fly.toT, e);
+    controls.cursor.copy(controls.target);
     if (t >= 1) fly = null;
   }
+  // Limit panning to 30% of the shorter viewport dimension. The limit follows
+  // zoom and each guided view, so close-ups cannot drift arbitrarily far away.
+  controls.maxTargetRadius = camera.position.distanceTo(controls.target)
+    * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))
+    * Math.min(camera.aspect, 1) * .6;
   controls.update(dt);
   renderer.render(scene, camera);
   if (labelsOn) projectHotspots();
@@ -421,7 +463,7 @@ async function boot() {
   renderer.setAnimationLoop(tick);
   loadingEl.classList.add('done');
   setTimeout(() => { loadingEl.hidden = true; }, 700);
-  for (const id of craftOrder) if (id !== active) loadModel(id).catch(() => {});
+  for (const id of craftOrder) if (id !== active && !craft[id].lazy) loadModel(id).catch(() => {});
 }
 
 function selectCraft(id, opt) {
@@ -435,12 +477,15 @@ function selectCraft(id, opt) {
     loadingEl.hidden = false;
     loadingEl.classList.remove('done');
     loadModel(id).then(() => {
+      if (active !== id) return;
       applyModel(id);
       loadingEl.classList.add('done');
-      setTimeout(() => { loadingEl.hidden = true; }, 500);
-    }).catch(showLoadError);
+      setTimeout(() => { if (active === id) loadingEl.hidden = true; }, 500);
+    }).catch((err) => { if (active === id) showLoadError(err); });
   } else {
     applyModel(id);
+    loadingEl.classList.add('done');
+    loadingEl.hidden = true;
   }
   if (opt && opt.scroll) { scrollToStage(); cardLockUntil = performance.now() + 2600; }
   else if (scrollY > 200 && $('#deck').getBoundingClientRect().bottom > 0) scrollToStage();

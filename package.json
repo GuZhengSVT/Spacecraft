@@ -9,7 +9,8 @@
     "model:sputnik": "node scripts/build-sputnik.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "model:dongfanghong": "node scripts/build-dongfanghong.mjs",
-    "model:soyuz": "node scripts/build-soyuz.mjs"
+    "model:soyuz": "node scripts/build-soyuz.mjs",
+    "model:apollo": "node scripts/build-apollo.mjs"
   },
   "dependencies": {
     "three": "^0.180.0"

@@ -1,8 +1,11 @@
+import { apolloCraft } from './apollo-content.js';
+import { issCraft } from './iss-content.js';
+
 // 页面内容：航天器的数据、部件、时间线与读物。
 // 数字取自 NASA、中国空间技术研究院、中国国家航天局等公开页面，
 // 逐项出处见每个航天器的 sources。
 
-export const craftOrder = ['voyager', 'sputnik', 'dongfanghong', 'cassini', 'soyuz'];
+export const craftOrder = ['voyager', 'sputnik', 'dongfanghong', 'cassini', 'soyuz', 'apollo', 'lunar', 'iss'];
 
 export const craft = {
   voyager: {
@@ -614,13 +617,19 @@ craft.soyuz = {
   ],
 };
 
-// 航天器的横向对照，按发射质量排序
+Object.assign(craft, apolloCraft);
+craft.iss = issCraft;
+
+// 航天器的横向对照；空间站采用在轨组装后的参考质量
 export const compare = [
   { id: 'sputnik', name: '斯普特尼克 1 号', year: '1957', mass: 83.6, massText: '83.6 kg', size: '球体 58 cm' },
   { id: 'dongfanghong', name: '东方红一号', year: '1970', mass: 173, massText: '173 kg', size: '多面体 1 m' },
   { id: 'voyager', name: '旅行者号', year: '1977', mass: 815, massText: '815 kg', size: '天线 3.7 m' },
   { id: 'cassini', name: '卡西尼号', year: '1997', mass: 5712, massText: '5,712 kg', size: '天线 4 m' },
   { id: 'soyuz', name: '联盟 TMA', year: '2002', mass: 7000, massText: '约 7,000 kg', size: '总长约 7.2 m' },
+  { id: 'lunar', name: '阿波罗登月舱', year: '1969', mass: 15103, massText: '15,103 kg', size: '脚垫跨度 9.45 m' },
+  { id: 'apollo', name: '阿波罗 CSM', year: '1969', mass: 28801, massText: '28,801 kg', size: '总长 11.0 m' },
+  { id: 'iss', name: '国际空间站', year: '1998', mass: 419725, massText: '约 419,725 kg（在轨参考）', size: '翼端跨度约 109 m' },
 ];
 
 // B 站：炙弹冰的航天史填词视频，数据截至 2026-10-24
